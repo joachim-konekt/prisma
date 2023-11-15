@@ -1,20 +1,106 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
-}
-
-model users {
+model User {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   image     String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      Role     @default(USER)
+  reports   Report[]
+}
+
+model Report {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  published Boolean   @default(false)
+  title     String
+  author    User?     @relation(fields: [authorId], references: [id])
+  authorId  Int?
+  keyvalues KeyValue[]
+}
+
+model KeyValue {
+  id        Int      @id @default(autoincrement())
+  key       String
+  value     String
+  reportId  Int
+  report    Report   @relation(fields: [reportId], references: [id])
+  category  Category
+}
+
+enum EnergyUnit {
+  KWH  // Kilowatt-hour
+  MWH  // Megawatt-hour
+  GJ   // Gigajoule
+}
+
+enum VolumeUnit {
+  NM3  // Normal cubic meter
+  L    // Liter
+}
+
+enum MassUnit {
+  KG   // Kilogram
+  TON  // Metric ton
+}
+
+enum MiscellaneousUnit {
+  NUMBER     // Number or Quantity
+  KM         // Kilometer
+  TON_KM     // Metric ton-kilometer
+  PERSON_KM  // Person-kilometer
+}
+
+enum CurrencyUnit {
+  DKK  // Danish Krone
+}
+
+enum EmploymentUnit {
+  EMPLOYEES_PER_YEAR  // Number of employees per year
+}
+
+model EmissionFactor {
+  id                 Int                @id @default(autoincrement())
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  published          Boolean            @default(false)
+  keyid              String             @db.VarChar(255)
+  version            String             @db.VarChar(255)
+  year               String             @db.VarChar(255)
+  energyUnit         EnergyUnit?        // Nullable if not always applicable
+  volumeUnit         VolumeUnit?        // Nullable if not always applicable
+  massUnit           MassUnit?          // Nullable if not always applicable
+  miscellaneousUnit  MiscellaneousUnit? // Nullable if not always applicable
+  currencyUnit       CurrencyUnit?      // Nullable if not always applicable
+  employmentUnit     EmploymentUnit?    // Nullable if not always applicable
+  scope1fact         Decimal           @db.Decimal(10, 2)
+  scope2fact         Decimal           @db.Decimal(10, 2)
+  scope3fact         Decimal           @db.Decimal(10, 2)
+  outofscope         Decimal           @db.Decimal(10, 2)
+  value              Decimal           @db.Decimal(10, 2)
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Category {
+  ENVIRONMENTAL
+  SOCIAL
+  GOVERNANCE
 }

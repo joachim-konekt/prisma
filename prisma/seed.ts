@@ -3,21 +3,21 @@ import prisma from '../lib/prisma'
 async function main() {
   const response = await Promise.all([
     prisma.users.upsert({
-      where: { email: 'rauchg@vercel.com' },
+      where: { email: 'fakeuser@gsv.com' },
       update: {},
       create: {
-        name: 'Guillermo Rauch',
-        email: 'rauchg@vercel.com',
+        name: 'Dennis Ritman',
+        email: 'fakeuser@gsv.com',
         image:
           'https://pbs.twimg.com/profile_images/1576257734810312704/ucxb4lHy_400x400.jpg',
       },
     }),
     prisma.users.upsert({
-      where: { email: 'lee@vercel.com' },
+      where: { email: 'kim@vercel.com' },
       update: {},
       create: {
-        name: 'Lee Robinson',
-        email: 'lee@vercel.com',
+        name: 'Lee Kim',
+        email: 'kim@vercel.com',
         image:
           'https://pbs.twimg.com/profile_images/1587647097670467584/adWRdqQ6_400x400.jpg',
       },
